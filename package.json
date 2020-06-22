@@ -1,19 +1,20 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "sprint 12 - backend",
+  "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js",
     "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "node_modules/.bin/eslint --ext=.js ./ --ignore-pattern \"public/\""
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/DmitriiK1/backend.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Dmitrii",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/DmitriiK1/backend/issues"
