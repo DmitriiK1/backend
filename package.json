@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "sprint 12 - backend",
+  "description": "sprint 13 - backend",
   "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js",
