@@ -14,7 +14,15 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => res.send({ data: card }))
-    .catch(() => res.status(404).send({ message: 'Нет карточки с таким id' }));
+  Card.findById(req.params.cardId)
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Нет карточки с таким id' });
+        return;
+      }
+      Card.findByIdAndRemove(req.params.cardId)
+        .then((cardToRemove) => res.send({ data: cardToRemove }))
+        .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
+    })
+    .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
 };

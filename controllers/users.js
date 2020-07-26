@@ -6,14 +6,17 @@ module.exports.getUsers = (req, res) => {
     .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
 };
 
-module.exports.createuserId = (req, res) => {
+module.exports.getUser = (req, res) => {
   const { id } = req.params;
-  const user = User.findById((item) => item._id === id);
-  if (!user) {
-    res.status(404).json({ message: 'Нет пользователя с таким id' });
-    return;
-  }
-  res.json(user);
+  User.findById(id)
+    .then((user) => {
+      if (user) {
+        res.json(user);
+      } else {
+        res.status(404).json({ message: 'Нет пользователя с таким id' });
+      }
+    })
+    .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.createUser = (req, res) => {
