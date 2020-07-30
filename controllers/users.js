@@ -30,7 +30,11 @@ module.exports.createUser = (req, res) => {
     password,
   } = req.body;
 
-  bcrypt.hash(password, 10)
+  if (password.length < 2 || password.length > 30) {
+    return res.status(400).send({ message: 'Произошла ошибка' });
+  }
+
+  return bcrypt.hash(password, 10)
     .then((hash) => User.create({
       name,
       about,
@@ -57,21 +61,24 @@ module.exports.login = (req, res) => {
       if (!user) {
         return Promise.reject(new Error('Неправильные почта или пароль'));
       }
-      return bcrypt.compare(password, user.password);
-    })
-    .then((matched) => {
-      if (!matched) {
-        // хеши не совпали — отклоняем промис
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
-      // аутентификация успешна
-      const token = jwt.sign(
-        { _id: '5f156fe57fb63018d4f0d108' },
-        'super-strong-secret',
-        { expiresIn: '7d' },
-      );
-      res.cookie('token', token, { httpOnly: true, secure: true, maxAge: 7 * 24 * 3600000 });
-      return res.send({ token });
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            // хеши не совпали — отклоняем промис
+            return Promise.reject(new Error('Неправильные почта или пароль'));
+          }
+          // аутентификация успешна
+          const token = jwt.sign(
+            { _id: user._id },
+            'super-strong-secret',
+            { expiresIn: '7d' },
+          );
+          res.cookie('token', token, { httpOnly: true, secure: true, maxAge: 7 * 24 * 3600000 });
+          return res.send({ token });
+        })
+        .catch(() => {
+          res.status(401).send({ message: 'Неправильные почта или пароль' });
+        });
     })
     .catch(() => {
       res.status(401).send({ message: 'Неправильные почта или пароль' });

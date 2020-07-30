@@ -11,6 +11,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 const cards = require('./routes/cards');
 const users = require('./routes/users');
+const auth = require('./routes/auth');
 // const auth = require('./middlewares/auth');
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/cards', cards);
 app.use('/users', users);
+app.use('/', auth);
 
 app.use(express.static('public'));
 app.use((req, res) => {
