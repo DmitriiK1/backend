@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
@@ -17,8 +18,8 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    validate: {
-      validator: (v) => /^(https?:\/\/)((((www\.)?[\w\d](([\w\d.-]+)*)[\w\d]*\.[a-z]{2,6})|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[[0-9]|250-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))(:(?=[1-9]{2,5})([1-9][0-9]{0,3}|[1-5][{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])?)?)(\/(?!\/)[\w\d]*)*?#?$/.test(v),
+    alidate: {
+      validator: (value) => validator.isURL(value, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true }),
     },
     required: true,
   },
@@ -33,10 +34,29 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
+    trim: true,
     required: true,
-    minlength: 8,
+    minlength: 2,
+    maxlength: 30,
     select: false,
   },
 });
+function preSave(next) {
+  const user = this;
+
+  // only hash the password if it has been modified (or is new)
+  if (!user.isModified('password')) return next();
+
+  // hash the password using our new salt
+  return bcrypt.hash(user.password, 10, (err, hash) => {
+    if (err) {
+      return next(err);
+    }
+    // override the cleartext password with the hashed one
+    user.password = hash;
+    return next();
+  });
+}
+userSchema.pre('save', preSave);
 
 module.exports = mongoose.model('user', userSchema);

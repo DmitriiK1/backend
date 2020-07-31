@@ -30,25 +30,21 @@ module.exports.createUser = (req, res) => {
     password,
   } = req.body;
 
-  if (password.length < 2 || password.length > 30) {
-    return res.status(400).send({ message: 'Произошла ошибка' });
-  }
-
-  return bcrypt.hash(password, 10)
-    .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash, // записываем хеш в базу
-    }))
+  return User.create({
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  })
     .then(() => res.send({
       name,
       about,
       avatar,
       email,
     }))
-    .catch(() => {
+    .catch((err) => {
+      console.log(err);
       res.status(400).send({ message: 'Произошла ошибка' });
     });
 };
@@ -76,7 +72,7 @@ module.exports.login = (req, res) => {
           const { NODE_ENV, JWT_SECRET } = process.env;
           const token = jwt.sign(
             { _id: user._id },
-            NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+            NODE_ENV === 'production' ? JWT_SECRET : 'super-strong-secret',
             { expiresIn: '7d' },
           );
           res.cookie('token', token, { httpOnly: true, secure: true, maxAge: 7 * 24 * 3600000 });
