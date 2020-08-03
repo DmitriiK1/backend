@@ -44,15 +44,15 @@ const userSchema = new mongoose.Schema({
 function preSave(next) {
   const user = this;
 
-  // only hash the password if it has been modified (or is new)
+  // только хэширование пароля, если он был изменен (или является новым)
   if (!user.isModified('password')) return next();
 
-  // hash the password using our new salt
+  // хэшируйте пароль, используя нашу новую соль
   return bcrypt.hash(user.password, 10, (err, hash) => {
     if (err) {
       return next(err);
     }
-    // override the cleartext password with the hashed one
+    // переопределяем пароль открытого текста хешированным
     user.password = hash;
     return next();
   });
