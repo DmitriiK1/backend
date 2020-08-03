@@ -3,6 +3,7 @@ const { errors } = require('celebrate');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
@@ -16,6 +17,8 @@ const users = require('./routes/users');
 const auth = require('./routes/auth');
 
 const app = express();
+app.use(requestLogger); // подключаем логгер запросов
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -28,8 +31,11 @@ app.use(express.static('public'));
 //   res.status(404).json({ message: 'Запрашиваемый ресурс не найден' });
 // });
 
+app.use(errorLogger); // подключаем логгер ошибок
+
 // обработчики ошибок
-app.use(errors());
+app.use(errors());// обработчик ошибок celebrate
+
 app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
