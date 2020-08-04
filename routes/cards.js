@@ -14,7 +14,7 @@ router.post('/', auth, celebrate({
   }),
 }), createCard);
 router.delete('/:cardId', auth, celebrate({
-  headers: Joi.object().keys({
+  params: Joi.object().keys({
     cardId: Joi.string().required().hex().length(24),
   }),
 }), deleteCard);
