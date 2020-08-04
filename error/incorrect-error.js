@@ -1,6 +1,6 @@
 class IncorrectError extends Error {
-  constructor() {
-    super('Произошла ошибка');
+  constructor(message) {
+    super(message || 'Произошла ошибка');
     this.statusCode = 400;
   }
 }

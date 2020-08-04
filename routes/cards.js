@@ -13,6 +13,10 @@ router.post('/', auth, celebrate({
     link: Joi.string().required().pattern(validateUrl).error(() => new IncorrectError('Неверный URL')),
   }),
 }), createCard);
-router.delete('/:cardId', auth, deleteCard);
+router.delete('/:cardId', auth, celebrate({
+  headers: Joi.object().keys({
+    cardId: Joi.string().required().hex().length(24),
+  }),
+}), deleteCard);
 
 module.exports = router;

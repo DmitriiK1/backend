@@ -26,17 +26,13 @@ app.use('/cards', cards);
 app.use('/users', users);
 app.use('/', auth);
 
-app.use(express.static('public'));
-// app.use((req, res) => {
-//   res.status(404).json({ message: 'Запрашиваемый ресурс не найден' });
-// });
-
 app.use(errorLogger); // подключаем логгер ошибок
 
 // обработчики ошибок
 app.use(errors());// обработчик ошибок celebrate
 
-app.use((err, req, res, next) => {
+app.use((err, req, res, next) => { // eslint-disable-line
+  // next будет вызван с аргументом-ошибкой и запрос перейдёт в обработчик ошибки
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
 
@@ -48,6 +44,9 @@ app.use((err, req, res, next) => {
         ? 'На сервере произошла ошибка'
         : message,
     });
+});
+app.use((req, res) => {
+  res.status(404).json({ message: 'Запрашиваемый ресурс не найден' });
 });
 
 const port = process.env.PORT || 3000;

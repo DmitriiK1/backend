@@ -32,8 +32,8 @@ router.post('/signup', celebrate({
     email: Joi.string().required().email(),
     password: Joi.string().required().pattern(validatePass).error(() => new AuthError('Необходимо задать пароль, содержащий строчные латинские буквы и цифры длинной не менее 8 символов')),
     name: Joi.string().required().min(2).max(30),
-    avatar: Joi.string().uri().pattern(validateUrl).error(() => new IncorrectError('Неверный URL')),
-    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().regex(validateUrl).error(() => new IncorrectError('Неверный URL')),
+    about: Joi.string().required().min(2).max(30),
   }),
 }), createUser);
 
