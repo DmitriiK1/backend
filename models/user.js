@@ -19,17 +19,13 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    validate: {
-      validator: (value) => validator.isURL(value, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true }),
-    },
+    validator: (value) => validator.isURL(value, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true }),
     required: true,
   },
 
   email: {
     type: String,
-    validate: {
-      validator: (v) => validator.isEmail(v),
-    },
+    validator: (v) => validator.isEmail(v),
     required: true,
     unique: true,
   },

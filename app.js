@@ -4,6 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const NotFoundError = require('./error/not-found-err');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
@@ -31,6 +32,10 @@ app.use(errorLogger); // подключаем логгер ошибок
 // обработчики ошибок
 app.use(errors());// обработчик ошибок celebrate
 
+app.use('*', () => {
+  throw new NotFoundError('Запрашиваемый ресурс не найден');
+});
+
 app.use((err, req, res, next) => { // eslint-disable-line
   // next будет вызван с аргументом-ошибкой и запрос перейдёт в обработчик ошибки
   // если у ошибки нет статуса, выставляем 500
@@ -44,9 +49,6 @@ app.use((err, req, res, next) => { // eslint-disable-line
         ? 'На сервере произошла ошибка'
         : message,
     });
-});
-app.use((req, res) => {
-  res.status(404).json({ message: 'Запрашиваемый ресурс не найден' });
 });
 
 const port = process.env.PORT || 3000;
