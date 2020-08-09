@@ -1,9 +1,8 @@
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../error/not-found-err');
 const IncorrectError = require('../error/incorrect-error');
-const AuthError = require('../error/auth-err');
+const ConflictingRequest = require('../error/conflicting-request');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -52,33 +51,25 @@ module.exports.createUser = (req, res, next) => {
       avatar,
       email,
     }))
-    .catch(() => next(new IncorrectError()));
+    .catch((err) => {
+      if (err.name === 'MongoError' && err.code === 11000) {
+        return next(new ConflictingRequest());
+      }
+      return next(new IncorrectError());
+    });
 };
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-
-  User.findOne({ email }).select('+password')
-    .then((user) => {
-      if (!user) {
-        throw new AuthError('Неправильные почта или пароль');
-      }
-      return bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            // хеши не совпали — отклоняем промис
-            throw new AuthError('Неправильные почта или пароль');
-          }
-          const { NODE_ENV, JWT_SECRET } = process.env;
-          const token = jwt.sign(
-            { _id: user._id },
-            NODE_ENV === 'production' ? JWT_SECRET : 'super-strong-secret',
-            { expiresIn: '7d' },
-          );
-          res.cookie('token', token, { httpOnly: true, secure: true, maxAge: 7 * 24 * 3600000 });
-          return res.send({ token });
-        })
-        .catch(next);
-    })
+  User.findCheckPassword(email, password).then((user) => {
+    const { NODE_ENV, JWT_SECRET } = process.env;
+    const token = jwt.sign(
+      { _id: user._id },
+      NODE_ENV === 'production' ? JWT_SECRET : 'super-strong-secret',
+      { expiresIn: '7d' },
+    );
+    res.cookie('token', token, { httpOnly: true, secure: true, maxAge: 7 * 24 * 3600000 });
+    return res.send({ token });
+  })
     .catch(next);
 };

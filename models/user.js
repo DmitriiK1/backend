@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
+const AuthError = require('../error/auth-err');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -18,17 +19,13 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    validate: {
-      validator: (value) => validator.isURL(value, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true }),
-    },
+    validator: (value) => validator.isURL(value, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true }),
     required: true,
   },
 
   email: {
     type: String,
-    validate: {
-      validator: (v) => validator.isEmail(v),
-    },
+    validator: (v) => validator.isEmail(v),
     required: true,
     unique: true,
   },
@@ -58,5 +55,23 @@ function preSave(next) {
   });
 }
 userSchema.pre('save', preSave);
+userSchema.statics = {
+  findCheckPassword(email, password) {
+    return this.findOne({ email }).select('+password')
+      .then((user) => {
+        if (!user) {
+          throw new AuthError('Неправильные почта или пароль');
+        }
+        return bcrypt.compare(password, user.password)
+          .then((matched) => {
+            if (!matched) {
+              // хеши не совпали — отклоняем промис
+              throw new AuthError('Неправильные почта или пароль');
+            }
+            return user;
+          });
+      });
+  },
+};
 
 module.exports = mongoose.model('user', userSchema);

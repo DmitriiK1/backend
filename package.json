@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "sprint 13 - backend",
+  "description": "sprint 15 - backend",
   "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js",
@@ -24,19 +24,21 @@
     "eslint": "^7.2.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.21.2",
-    "nodemon": "^2.0.4",
-    "supertest": "^4.0.2"
+    "nodemon": "^2.0.4"
   },
   "dependencies": {
+    "@hapi/joi": "^17.1.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "celebrate": "^12.1.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-winston": "^4.0.5",
+    "joi-objectid": "^3.0.1",
     "jsonwebtoken": "^8.5.1",
-    "lodash": ">=4.17.19",
     "mongoose": "^5.9.25",
     "validate": "^5.1.0",
-    "validator": "^13.1.1"
+    "validator": "^13.1.1",
+    "winston": "^3.3.3"
   }
 }
